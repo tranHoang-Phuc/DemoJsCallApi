@@ -2,6 +2,8 @@
 using DemoJsCallApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
+using System.Xml.Serialization;
 
 namespace DemoJsCallApi.Controllers
 {
@@ -150,12 +152,163 @@ namespace DemoJsCallApi.Controllers
 
         // GET -  XML - AJAX
 
+
+    [HttpGet("product/xml")]
+    public IActionResult GetXml()
+    {
+        try
+        {
+            // Map EF entities to DTOs
+            var products = _context.Products
+                .Include(x => x.Category)
+                .Select(x => new ProductResponse
+                {
+                    ProductId = x.ProductId,
+                    ProductName = x.ProductName,
+                    Image = x.Image,
+                    UnitPrice = x.UnitPrice!.Value,
+                    UnitsInStock = x.UnitsInStock!.Value,
+                    Category = new CategoryResponse
+                    {
+                        CategoryId = x.Category.CategoryId,
+                        CategoryName = x.Category.CategoryName
+                    }
+                })
+                .ToList();
+
+            var xmlSerializer = new XmlSerializer(typeof(List<ProductResponse>));
+
+            using (var stringWriter = new StringWriter())
+            {
+                xmlSerializer.Serialize(stringWriter, products);
+                return Content(stringWriter.ToString(), "application/xml", Encoding.UTF8);
+            }
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error: {ex.Message}");
+        }
+    }
+        [HttpGet("product/xml/{id}")]
+        public IActionResult GetXml(int id)
+        {
+            try
+            {
+                var product = _context.Products
+                    .Include(x => x.Category)
+                    .Select(x => new ProductResponse
+                    {
+                        ProductId = x.ProductId,
+                        ProductName = x.ProductName,
+                        Image = x.Image,
+                        UnitPrice = x.UnitPrice!.Value,
+                        UnitsInStock = x.UnitsInStock!.Value,
+                        Category = new CategoryResponse
+                        {
+                            CategoryId = x.Category.CategoryId,
+                            CategoryName = x.Category.CategoryName
+                        }
+                    })
+                    .FirstOrDefault(x => x.ProductId == id);
+                if (product == null)
+                    return NotFound();
+                var xmlSerializer = new XmlSerializer(typeof(ProductResponse));
+                using (var stringWriter = new StringWriter())
+                {
+                    xmlSerializer.Serialize(stringWriter, product);
+                    return Content(stringWriter.ToString(), "application/xml", Encoding.UTF8);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error: {ex.Message}");
+            }
+        }
+
         // POST - XML -AJAX
+        [HttpPost("product/xml")]
+        [Consumes("application/xml")]
+        [Produces("application/xml")]
+        public IActionResult CreateXml([FromBody] XmlCreationProduct XmlCreationProduct)
+        {
+            try
+            {
+                if (XmlCreationProduct == null)
+                {
+                    return BadRequest("Invalid XML format.");
+                }
+
+                var product = new Product
+                {
+                    ProductName = XmlCreationProduct.ProductName,
+                    UnitPrice = XmlCreationProduct.UnitPrice ?? 0,
+                    UnitsInStock = XmlCreationProduct.UnitsInStock ?? 0,
+                    Image = XmlCreationProduct.Image,
+                    CategoryId = XmlCreationProduct.CategoryId ?? 0
+                };
+
+                _context.Products.Add(product);
+                _context.SaveChanges();
+
+                return Created("",null);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error: {ex.Message}");
+            }
+        }
+
 
         // PUT - XML - AJAX
-
+        [HttpPut("product/xml/{id}")]
+        [Consumes("application/xml")]
+        [Produces("application/xml")]
+        public IActionResult UpdateXml(int id, [FromBody] XmlCreationProduct XmlCreationProduct)
+        {
+            try
+            {
+                if (XmlCreationProduct == null)
+                {
+                    return BadRequest("Invalid XML format.");
+                }
+                var product = _context.Products.FirstOrDefault(x => x.ProductId == id);
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                product.ProductName = XmlCreationProduct.ProductName;
+                product.UnitPrice = XmlCreationProduct.UnitPrice ?? 0;
+                product.UnitsInStock = XmlCreationProduct.UnitsInStock ?? 0;
+                product.Image = XmlCreationProduct.Image;
+                product.CategoryId = XmlCreationProduct.CategoryId ?? 0;
+                _context.SaveChanges();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error: {ex.Message}");
+            }
+        }
         // DELETE - XML - AJAX
-
+        [HttpDelete("product/xml/{id}")]
+        public IActionResult DeleteXml(int id)
+        {
+            try
+            {
+                var product = _context.Products.FirstOrDefault(x => x.ProductId == id);
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                _context.Products.Remove(product);
+                _context.SaveChanges();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error: {ex.Message}");
+            }
+        }
 
         // GET -  JSON - FETCH
 
