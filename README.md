@@ -8,6 +8,9 @@
 * Sửa file appsettings.json
   * Thay thông tin connection string của bạn
 * Chạy migration (nếu chưa có DB MySaleDb của thầy đã gửi)
+  
   `dotnet ef migrations add 'Init'`
+  
   `dotnet ef database update`
+  
 * Chạy project 
