@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,12 +32,12 @@
             border-bottom: 1px solid #ddd;
         }
 
-            /* Căn giữa số trong cột */
-            td:nth-child(1),
-            td:nth-child(3),
-            td:nth-child(4) {
-                text-align: center;
-            }
+        /* Căn giữa số trong cột */
+        td:nth-child(1),
+        td:nth-child(3),
+        td:nth-child(4) {
+            text-align: center;
+        }
 
         /* Hover hiệu ứng */
         tr:hover {
@@ -57,21 +58,31 @@
         }
 
         button {
-            background-color: #4CAF50; /* Màu xanh lá */
-            color: white; /* Chữ màu trắng */
-            padding: 10px 20px; /* Kích thước */
-            border: none; /* Không viền */
-            border-radius: 5px; /* Bo tròn */
-            cursor: pointer; /* Đổi con trỏ */
-            font-size: 16px; /* Cỡ chữ */
-            transition: background-color 0.3s ease; /* Hiệu ứng hover */
+            background-color: #4CAF50;
+            /* Màu xanh lá */
+            color: white;
+            /* Chữ màu trắng */
+            padding: 10px 20px;
+            /* Kích thước */
+            border: none;
+            /* Không viền */
+            border-radius: 5px;
+            /* Bo tròn */
+            cursor: pointer;
+            /* Đổi con trỏ */
+            font-size: 16px;
+            /* Cỡ chữ */
+            transition: background-color 0.3s ease;
+            /* Hiệu ứng hover */
         }
 
-            button:hover {
-                background-color: #45a049; /* Màu tối hơn khi hover */
-            }
+        button:hover {
+            background-color: #45a049;
+            /* Màu tối hơn khi hover */
+        }
     </style>
 </head>
+
 <body>
     <form id="productForm">
         <input type="text" id="productName" placeholder="Product Name" required>
@@ -196,4 +207,5 @@
         }
     </script>
 </body>
+
 </html>
