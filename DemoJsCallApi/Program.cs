@@ -12,6 +12,15 @@ builder.Services.AddDbContext<MySaleDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
 
 builder.Services.AddSwaggerGen();
 
@@ -25,6 +34,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // use CORS policy
+app.UseCors("AllowAll");
 
 app.UseAuthorization();
 

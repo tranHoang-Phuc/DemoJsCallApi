@@ -113,46 +113,53 @@
     <script>
         try {
             document.getElementById("productForm").addEventListener("submit", async function (event) {
-                event.preventDefault(); // Ngăn form reload trang
+                event.preventDefault(); // Prevent page reload
 
-                // Lấy dữ liệu từ form
+                // Get form data
                 const productData = {
-                    productName: document.getElementById("productName").value,
-                    unitPrice: parseFloat(document.getElementById("productPrice").value),
-                    unitsInStock: parseInt(document.getElementById("productQuantity").value),
-                    categoryId: document.getElementById("categoryId").value
+                    ProductName: document.getElementById("productName").value,
+                    UnitPrice: parseFloat(document.getElementById("productPrice").value),
+                    UnitsInStock: parseInt(document.getElementById("productQuantity").value),
+                    CategoryId: parseInt(document.getElementById("categoryId").value), // Ensure it's a number
+                    Image: ""
                 };
 
-                // Chuyển object thành XML
+                // Convert object to XML
                 function toXML(obj) {
-                    let xml = `
-                <?xml version="1.0" encoding="UTF-8"?>
-                <XmlCreationProduct>
-                `;
+                    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<XmlCreationProduct>\n`;
                     for (let key in obj) {
-                        xml += `<${key}>${obj[key]}</${key}>`;
+                        if (obj[key] === "") {
+                            xml += `<${key}></${key}>\n`;  // Self-closing tag for empty values
+                        } else {
+                            xml += `<${key}>${obj[key]}</${key}>\n`;
+                        }
                     }
                     xml += `</XmlCreationProduct>`;
                     return xml;
                 }
                 const xmlData = toXML(productData);
-                console.log(xmlData);
+                console.log("Generated XML:", xmlData);
 
                 try {
                     const headers = new Headers();
-                    headers.append('Content-Type', 'application/xml');
+                    headers.append('Content-Type', 'application/xml'); // Some APIs prefer 'text/xml'
                     const result_msg = document.getElementById("result");
                     result_msg.innerText = "";
+
                     const response = await fetch("http://localhost:5270/Demo/product/xml", {
                         method: "POST",
                         headers: headers,
                         body: xmlData
                     });
 
-                    if (!response.ok) throw new Error("Lỗi khi gửi dữ liệu!");
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`Lỗi khi gửi dữ liệu! Server response: ${errorText}`);
+                    }
 
-                    const result = await response.json();
-                    result_msg.innerText = `Sản phẩm đã thêm: ${result.name} - $${result.price}`;
+                    const result = await response.text(); // Expecting XML response, not JSON
+                    console.log("Server Response:", result);
+                    result_msg.innerText = `Server Response: ${result}`;
                 } catch (error) {
                     document.getElementById("result").innerText = `Lỗi: ${error.message}`;
                 }
@@ -160,6 +167,7 @@
         } catch (error) {
             console.error("Có lỗi xảy ra:", error);
         }
+
 
         async function fetchs() {
             try {
